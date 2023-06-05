@@ -1,8 +1,10 @@
 <template>
   <h2>{{ title }}</h2>
-    <div class="result" v-for="content of feed.content" :key="content.id">
+  <div class="feed">
+    <div class="item" v-for="content of feed.content" :key="content.id" @click="openPlayer(content)">
       <img :src="`https://image.tmdb.org/t/p/w300/${content.poster_path}`" />
     </div>
+  </div>
 </template>
 
 <script>
@@ -17,6 +19,10 @@ export default {
     const feed = reactive({});
     feed.isLoaded = false
 
+    function openPlayer(content) {
+      window.player.open(content)
+    }
+
     watch(
       () => props.content,
       async (content) => {
@@ -25,7 +31,7 @@ export default {
       }
     );
 
-    return { feed };
+    return { feed, openPlayer };
   },
 };
 </script>
@@ -33,14 +39,14 @@ export default {
 <style scped>
 .feed {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100vw;
   position: relative;
   height: 200px;
 }
 
-.result {
+.item {
   margin: 10px;
   border-radius: 5px;
   height: 100%;
@@ -48,7 +54,7 @@ export default {
   cursor: pointer;
 }
 
-.result img {
+.item img {
   height: 100%;
   background-size: cover;
   border-radius: 5px;

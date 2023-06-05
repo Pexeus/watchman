@@ -1,11 +1,6 @@
 <template>
   <div class="content">
     <Search></Search>
-
-
-    <!--
-      Problem: Feed Component kann nicht in Loop gerendert werden ( v-for im v-for )
-    -->
       <Feed v-for="feed of data.feeds" :key="data.feeds.indexOf(feed)" :content="feed" title="TITLE"></Feed>
     
 
