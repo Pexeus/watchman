@@ -35,7 +35,7 @@ export default {
       }
     );
 
-    search.query = "iron man"
+    //search.query = "iron man"
 
     return { search };
   },
