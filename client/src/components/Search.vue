@@ -31,6 +31,7 @@ export default {
         const url = `https://api.themoviedb.org/3/search/multi?query=${query}`;
         const res = await tmdb.get(url)
 
+
         search.results = res.data.results
       }
     );

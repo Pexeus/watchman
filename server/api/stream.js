@@ -5,6 +5,8 @@ const router = express.Router()
 
 router.get("/source/:id", async (req, res) => {
     const id = req.params.id;
+    console.log("getting HLS source for", id);
+
     const hls = await embed.hls(id)
 
     res.end(hls)
