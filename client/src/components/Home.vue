@@ -1,7 +1,13 @@
 <template>
   <div class="content">
-    <Search></Search>
-      <Feed v-for="feed of data.feeds" :key="data.feeds.indexOf(feed)" :content="feed" title="TITLE"></Feed>
+    <!--<Search></Search>-->
+      <div class="feeds" v-if="data.feeds.length > 1">
+        <Feed :title="data.popular_feed.title" :url="data.popular_feed.url"></Feed>
+        <Feed v-for="feed of data.feeds" :url="feed.url" :title="feed.title" :key="data.feeds.indexOf(feed)"></Feed>
+      </div>
+
+
+
     
 
 
@@ -18,80 +24,45 @@ import { reactive } from "vue"
 export default {
   name: "Home",
   components: {
-    Search,
+    //Search,
     Feed
   },
   setup() {
     const data = reactive({
                         feeds:[],
+                        popular_feed: {
+                          title: "",
+                          url: ""
+                        },
                         genres: {},
-                        max_feeds: 0
+                        max_feeds: 0,
+                        url: {
+                          base: "https://api.themoviedb.org/3/",
+                          defaultParams: "?language=en-US&page=1&sort_by=vote_average.desc"
+                        },
+                        api_params: ["tv","movie"],
+                        ui_params: ["TV-Shows", "Movies"]
                       })
 
-    let baseUrl = "https://api.themoviedb.org/3/"
     let tmdb = config.interfaces.tmdb
-
-    const params = ["tv","movie"]
 
     let max = 9 // max. amount of feeds generated
     data.max_feeds = max
 
-    // t = target
-    // ( 1 => movies, 0 => tv shows)
-    function getPopular(t) {
-      return new Promise(async resolve => {
-        let url = baseUrl + `${params[t]}/popular`
-        let res = await tmdb.get(url)
-        resolve(res.data.results)
-      })
-    }
-
-    // t = target
-    // f = filter 
-    // ex.  getFeed(0, {genres:[]})
-    //      getFeed(0, {popular:true})
-    function getFeed(t, f) {
-      return new Promise(async resolve => {
-        let url = baseUrl + `discover/${params[t]}`
-
-        let res = await tmdb.get(url)
-
-        resolve(res.data.results)
-      })
-    }
-
     function getGenres(t) {
       return new Promise(async resolve => {
-        let mode
         let url
         let res
 
-        url = baseUrl+`genre/${params[t]}/list`
+        url = data.url.base+`genre/${data.api_params[t]}/list`
         res = await tmdb.get(url)
         resolve(res.data.genres)
       })
       
     }
 
-    async function prepareFeeds() {
-      for(let i=0;i<max;i++) {
-        if(i == 0) {
-          // popular feed
-          let popular = await getPopular(r())
-          data.feeds.push(popular)
-        }
-        else {
-          // genre based feeds (very much unfinished)
-          let rndm = r()
-          let filters = rElemsFromArr(data.genres[params[rndm]], 3)
-          let f = await getFeed(rndm, filters)
-          data.feeds.push(f)
-        }
-      }
-    }
-
     function r() {
-      return Math.floor(Math.random() * (1 - 0 + 1)) + 0;
+      return Math.floor(Math.random() * 2)
     }
 
     function rElemsFromArr(a, n) {
@@ -110,20 +81,53 @@ export default {
       return result
     }
 
+    function isEven(number) {
+      if (number % 2 === 0) return 1
+      else return 0
+    }
+
+    function buildPopularFeed() {
+      let r_num = r()
+      let obj = {
+        title: "Popular " + data.ui_params[r_num],
+        url : data.url.base + data.api_params[r_num]+'/popular' + data.url.defaultParams
+      }
+      data.popular_feed = obj
+    }
+
     window.onload = async () => {
       // init
+      buildPopularFeed()
+      console.log(data)
+
       data.genres["movie"] = await getGenres(1)
       data.genres["tv"] = await getGenres(0)
-      prepareFeeds()
-      
-      
+
+      // loop through max feed count
+      let b_elem
+      for(let i=1;i<max;i++) {
+        let r_elem = rElemsFromArr(data.genres[data.api_params[isEven(i)]],1)
+        if(r_elem == b_elem) {
+          r_elem = rElemsFromArr(data.genres[data.api_params[isEven(i)]],1)
+        }
+        b_elem = r_elem
+        console.log(r_elem, b_elem)
+        
+        let obj = {
+          url: data.url.base + data.api_params[isEven(i)] + "/popular" + data.url.defaultParams + "&with_genres=" + r_elem[0].id,
+          title:  r_elem[0].name + " " + data.ui_params[isEven(i)]
+        }
+
+        data.feeds.push(obj)
+      }
+
     }
 
   
 
     
     
-    return { data }
+    return { data, r }
   },
 };
 </script>
