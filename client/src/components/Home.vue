@@ -79,8 +79,6 @@ export default {
           // popular feed
           let popular = await getPopular(r())
           data.feeds.push(popular)
-
-          console.log(data)
         }
         else {
           // genre based feeds (very much unfinished)

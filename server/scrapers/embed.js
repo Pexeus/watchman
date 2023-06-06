@@ -8,68 +8,88 @@ async function init() {
 }
 
 export async function getHLS(id) {
-    const embed = `https://www.2embed.to/embed/imdb${id}`
-    const t0 = Date.now()
+    return new Promise(async resolve => {
+        const embed = `https://www.2embed.to/embed/imdb${id}`
+        const t0 = Date.now()
 
-    while (!browser) {
-        await sleep(100)
-    }
+        let hls = false
+        let abort = false
 
-    // Create a new page
-    const context = await browser.newContext();
-
-    //store HLS url
-    let hls = false
-
-    context.on('page', async (page) => {
-        if (page.url() != "about:blank" && page.url() != embed) {
-            await page.close()
-        }
-    });
-
-    const page = await context.newPage();
-
-    // Navigate to a website
-    const response = await page.goto(embed);
-    console.log(response.status());
-
-    if (response.status() != 200) {
-        console.log('Not found', response.status());
-        hls = {status: response.status()}
-    }
-
-    await page.route('**', route => {
-        const url = route.request().url()
-
-        if (url.includes(".m3u8")) {
-            hls = url
+        while (!browser) {
+            await sleep(100)
         }
 
-        route.continue()
-    });
+        setTimeout(async () => {
+            if (!hls) {
+                console.log('timeout exceeded. defaulting to false.');
 
-    // Navigate to website
-    await page.goto(embed);
+                abort = true
+                await context.close()
 
-    const { width, height } = await page.evaluate(() => ({
-        width: document.documentElement.clientWidth,
-        height: document.documentElement.clientHeight,
-    }));
+                resolve(false)
+            }
+        }, 5000);
 
-    // Calculate the coordinates of the center of the page
-    const centerX = Math.floor(width / 2);
-    const centerY = Math.floor(height / 2);
+        // Create a new page
+        const context = await browser.newContext();
 
-    // Click on the center of the page
-    while (!hls) {
-        await page.mouse.click(centerX, centerY);
-    }
+        context.on('page', async (page) => {
+            if (page.url() != "about:blank" && page.url() != embed) {
+                await page.close()
+            }
+        });
 
-    await context.close()
+        const page = await context.newPage();
 
-    console.log(`hls link ready in ${Date.now() - t0}ms`);
+        // Navigate to a website
+        const response = await page.goto(embed);
+        console.log(response.status());
 
-    return hls
+        if (response.status() != 200) {
+            console.log('Not found', response.status());
+            hls = { status: response.status() }
+        }
+
+        await page.route('**', route => {
+            const url = route.request().url()
+
+            if (url.includes(".m3u8")) {
+                hls = url
+            }
+
+            route.continue()
+        });
+
+        // Navigate to website
+        await page.goto(embed);
+
+        const { width, height } = await page.evaluate(() => ({
+            width: document.documentElement.clientWidth,
+            height: document.documentElement.clientHeight,
+        }));
+
+        // Calculate the coordinates of the center of the page
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+
+        // Click on the center of the page
+        while (!hls && !abort) {
+            try {
+                await page.mouse.click(centerX, centerY);
+            }
+            catch{
+
+            }
+        }
+
+        if (!abort) {
+            await context.close()
+
+            console.log(`hls link ready in ${Date.now() - t0}ms`);
+
+            resolve(hls)
+        }
+    })
 }
 
 function sleep(ms) {

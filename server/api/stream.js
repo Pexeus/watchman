@@ -24,6 +24,7 @@ router.get("/source", async (req, res) => {
     console.log("getting HLS source for", id);
 
     const hls = await embed.hls(id)
+    console.log(hls);
 
     res.end(hls)
 })

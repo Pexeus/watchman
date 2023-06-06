@@ -1,6 +1,10 @@
 <template>
   <div :class="`moviePlayer ${player.visibility}`" >
-    <video controls class="video-js vjs-default-skin vjs-16-9" id="video"></video>
+    <video
+      controls
+      class="video-js vjs-default-skin vjs-16-9"
+      id="video"
+    ></video>
     <div class="overview">
       <h1>{{ player.details.original_title }}</h1>
       <div class="tags">
@@ -42,8 +46,6 @@ export default {
 
       //get player source
       const sRes = await api.get(`/source/?id=${player.details.imdb_id}`)
-
-      console.log(proxy);
 
       video.src({
         src: `${proxy}/m3u8-proxy?url=${sRes.data}`,

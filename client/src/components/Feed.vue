@@ -1,5 +1,4 @@
 <template>
-  <h2>{{ title }}</h2>
   <div class="feed">
     <div class="item" v-for="content of feed.content" :key="content.id" @click="openPlayer(content)">
       <img :src="`https://image.tmdb.org/t/p/w300/${content.poster_path}`" />

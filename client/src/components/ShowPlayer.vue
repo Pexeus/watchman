@@ -2,8 +2,8 @@
   <div :class="`showPlayer ${player.visibility}`">
     <video
       controls
-      class="video-js vjs-default-skin vjs-16-9"
-      id="video"
+      class="video-js vjs-sublime-skin vjs-16-9"
+      id="video-show"
     ></video>
     <div class="overview">
       <h1>{{ player.details.original_name }}</h1>
@@ -14,17 +14,19 @@
         v-for="season of player.seasons"
         :key="season.season_number"
       >
-        <h2>{{ season.name }}</h2>
-        <div class="episodes">
-          <div
-            class="episode"
-            @click="playEpisode(season, episode)"
-            v-for="episode of season.episodes"
-            :key="episode.id"
-          >
-            <p>{{ episode.name }}</p>
+        <template v-if="season.season_number != 0">
+          <h2>{{ season.name }}</h2>
+          <div class="episodes">
+            <div
+              class="episode"
+              @click="playEpisode(season, episode)"
+              v-for="episode of season.episodes"
+              :key="episode.id"
+            >
+              <p>{{ episode.name }}</p>
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
   </div>
@@ -52,8 +54,6 @@ export default {
     const proxy = config.proxyUrl;
 
     async function playEpisode(season, episode) {
-      console.log(episode);
-
       video.poster(`https://image.tmdb.org/t/p/original/${episode.still_path}`);
 
       const res = await api.get(
@@ -66,13 +66,12 @@ export default {
         src: `${proxy}/m3u8-proxy?url=${res.data}`,
         type: "application/x-mpegURL",
       });
+
+      video.play()
     }
 
     async function init() {
-      video = videojs("video");
-      video.poster(
-        "https://image.tmdb.org/t/p/original//18Px4Nn1ihIU2MTjEl5IekVfRt8.jpg"
-      );
+      video = videojs("video-show");
 
       const res = await tmdb.get(
         `https://api.themoviedb.org/3/tv/${player.content.id}`
@@ -96,6 +95,10 @@ export default {
 
         i++;
       }
+
+      video.poster(
+        `https://image.tmdb.org/t/p/original/${details.backdrop_path}`
+      );
 
       console.log(details);
 
