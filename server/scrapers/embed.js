@@ -4,7 +4,7 @@ let browser = false
 
 async function init() {
     // Launch Firefox browser
-    browser = await firefox.launch({ headless: false });
+    browser = await firefox.launch({ headless: true });
 }
 
 export async function getHLS(id) {
