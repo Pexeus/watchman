@@ -62,12 +62,17 @@ export default {
 
       console.log(res.data);
 
-      video.src({
-        src: `${proxy}/m3u8-proxy?url=${res.data}`,
-        type: "application/x-mpegURL",
-      });
+      if (res.data != "") {
+        video.src({
+          src: `${proxy}/m3u8-proxy?url=${res.data}`,
+          type: "application/x-mpegURL",
+        });
+      }
+      else {
+        alert("No Source Available")
+      }
 
-      video.play()
+      video.play();
     }
 
     async function init() {

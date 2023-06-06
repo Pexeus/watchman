@@ -1,7 +1,7 @@
 <template>
   <div>
     <input type="text" v-model="search.query" />
-    <Feed :content="search.results"></Feed>
+    <Feed :title="`Results for ${search.query}`" :url="search.url"></Feed>
   </div>
 </template>
   
@@ -20,7 +20,7 @@ export default {
     const tmdb = config.interfaces.tmdb
     const search = reactive({
       query: "",
-      results: []
+      url: ""
     });
 
     const key = config.tmbdKey;
@@ -28,11 +28,10 @@ export default {
     watch(
       () => search.query,
       async (query, old) => {
-        const url = `https://api.themoviedb.org/3/search/multi?query=${query}`;
-        const res = await tmdb.get(url)
+        search.url = `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(query)}`;
+        const res = await tmdb.get(search.url)
 
-
-        search.results = res.data.results
+        console.log(res);
       }
     );
 

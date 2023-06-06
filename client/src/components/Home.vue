@@ -1,17 +1,10 @@
 <template>
   <div class="content">
-    <!--<Search></Search>-->
+    <Search></Search>
       <div class="feeds" v-if="data.feeds.length > 1">
         <Feed :title="data.popular_feed.title" :url="data.popular_feed.url" :mediaType="data.popular_feed.mediaType"></Feed>
         <Feed v-for="feed of data.feeds" :url="feed.url" :title="feed.title" :mediaType="feed.mediaType" :key="data.feeds.indexOf(feed)"></Feed>
       </div>
-
-
-
-    
-
-
-
   </div>
 </template>
   
@@ -24,7 +17,7 @@ import { reactive } from "vue"
 export default {
   name: "Home",
   components: {
-    //Search,
+    Search,
     Feed
   },
   setup() {
@@ -100,7 +93,6 @@ export default {
     window.onload = async () => {
       // init
       buildPopularFeed()
-      console.log(data)
 
       data.genres["movie"] = await getGenres(1)
       data.genres["tv"] = await getGenres(0)
@@ -113,8 +105,6 @@ export default {
           r_elem = rElemsFromArr(data.genres[data.api_params[isEven(i)]],1)
         }
         b_elem = r_elem
-        console.log(r_elem, b_elem)
-        console.log(data.api_params[isEven(i)])
         let obj = {
           url: data.url.base  + "discover/" + data.api_params[isEven(i)] + data.url.defaultParams + "&with_genres=" + r_elem[0].id,
           title:  r_elem[0].name + " " + data.ui_params[isEven(i)],
