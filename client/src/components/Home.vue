@@ -2,8 +2,8 @@
   <div class="content">
     <!--<Search></Search>-->
       <div class="feeds" v-if="data.feeds.length > 1">
-        <Feed :title="data.popular_feed.title" :url="data.popular_feed.url"></Feed>
-        <Feed v-for="feed of data.feeds" :url="feed.url" :title="feed.title" :key="data.feeds.indexOf(feed)"></Feed>
+        <Feed :title="data.popular_feed.title" :url="data.popular_feed.url" :mediaType="data.popular_feed.mediaType"></Feed>
+        <Feed v-for="feed of data.feeds" :url="feed.url" :title="feed.title" :mediaType="feed.mediaType" :key="data.feeds.indexOf(feed)"></Feed>
       </div>
 
 
@@ -32,7 +32,8 @@ export default {
                         feeds:[],
                         popular_feed: {
                           title: "",
-                          url: ""
+                          url: "",
+                          mediaType: ""
                         },
                         genres: {},
                         max_feeds: 0,
@@ -90,7 +91,8 @@ export default {
       let r_num = r()
       let obj = {
         title: "Popular " + data.ui_params[r_num],
-        url : data.url.base + data.api_params[r_num]+'/popular' + data.url.defaultParams
+        url : data.url.base + data.api_params[r_num]+'/popular' + data.url.defaultParams,
+        mediaType: data.api_params[r_num]
       }
       data.popular_feed = obj
     }
@@ -112,10 +114,11 @@ export default {
         }
         b_elem = r_elem
         console.log(r_elem, b_elem)
-        
+        console.log(data.api_params[isEven(i)])
         let obj = {
-          url: data.url.base + data.api_params[isEven(i)] + "/popular" + data.url.defaultParams + "&with_genres=" + r_elem[0].id,
-          title:  r_elem[0].name + " " + data.ui_params[isEven(i)]
+          url: data.url.base  + "discover/" + data.api_params[isEven(i)] + data.url.defaultParams + "&with_genres=" + r_elem[0].id,
+          title:  r_elem[0].name + " " + data.ui_params[isEven(i)],
+          mediaType: data.api_params[isEven(i)],
         }
 
         data.feeds.push(obj)

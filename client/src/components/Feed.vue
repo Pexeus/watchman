@@ -1,7 +1,7 @@
 <template>
   <div class="feed">
-    <div class="item" v-for="content of feed.content" :key="content.id" @click="openPlayer(content)">
-      <img :src="`https://image.tmdb.org/t/p/w300/${content.poster_path}`" />
+    <div class="item" v-for="content of feed.content" :key="content.id" >
+      <img :src="`https://image.tmdb.org/t/p/w300/${content.poster_path}`" @click="openPlayer(content)" />
     </div>
   </div>
 </template>
@@ -15,18 +15,26 @@ export default {
   props: {
     content: Object,
     title: String,
-    url: String
+    url: String,
+    mediaType: String
   },
   setup(props, context) {
     const feed = reactive({});
     const tmdb = config.interfaces.tmdb
 
     function openPlayer(content) {
+      console.log(content)
       window.player.open(content)
     }
 
     async function init(){
       let res = await tmdb.get(props.url)
+      let i = 0
+
+      for(let elem of res.data.results) {
+        res.data.results[i].media_type = props.mediaType
+        i++
+      }
       feed.content = res.data.results
     }
     

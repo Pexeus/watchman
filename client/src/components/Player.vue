@@ -26,7 +26,7 @@ export default {
       open: (content) => {
         player.movie = false
         player.show = false
-
+        console.log(content)
         if (content.media_type == "movie") {
           player.movie = content;
           player.visibility = "visible"
