@@ -1,5 +1,5 @@
 <template>
-  <div class="moviePlayer">
+  <div :class="`moviePlayer ${player.visibility}`" >
     <video controls class="video-js vjs-default-skin vjs-16-9" id="video"></video>
     <div class="overview">
       <h1>{{ player.details.original_title }}</h1>
@@ -23,16 +23,13 @@ export default {
   },
   setup(props, content) {
     const player = reactive({
-      details: false
-
+      details: false,
+      visibility: "inactive"
     });
 
     const api = config.interfaces.api;
     const tmdb = config.interfaces.tmdb;
     const proxy = config.proxyUrl
-
-    console.log(api);
-
 
     async function init() {
       const video = videojs("video");
@@ -41,10 +38,10 @@ export default {
       player.details = res.data
 
       //debug
-      console.log(res.data);
+      console.log(res);
 
       //get player source
-      const sRes = await api.get(`/source/${player.details.imdb_id}`)
+      const sRes = await api.get(`/source/?id=${player.details.imdb_id}`)
 
       console.log(proxy);
 
@@ -59,7 +56,15 @@ export default {
     watch(
       () => props.content,
       async (content) => {
+        if (content == false) {
+          player.visibility = "inactive";
+          return;
+        }
+
         player.content = content;
+        player.visibility = "active";
+
+        console.log(player.content.id);
 
         init();
       }
@@ -85,6 +90,14 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.active {
+  display: inline-block;
+}
+
+.inactive {
+  display: none;
 }
 
 </style>

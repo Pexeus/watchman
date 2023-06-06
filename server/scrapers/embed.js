@@ -4,14 +4,14 @@ let browser = false
 
 async function init() {
     // Launch Firefox browser
-    browser = await firefox.launch({ headless: true });
+    browser = await firefox.launch({ headless: false });
 }
 
-export async function getHLS(imdb) {
-    const embed = `https://www.2embed.to/embed/imdb/movie?id=${imdb}`
+export async function getHLS(id) {
+    const embed = `https://www.2embed.to/embed/imdb${id}`
     const t0 = Date.now()
 
-    while(!browser) {
+    while (!browser) {
         await sleep(100)
     }
 
@@ -30,7 +30,13 @@ export async function getHLS(imdb) {
     const page = await context.newPage();
 
     // Navigate to a website
-    await page.goto(embed);
+    const response = await page.goto(embed);
+    console.log(response.status());
+
+    if (response.status() != 200) {
+        console.log('Not found', response.status());
+        hls = {status: response.status()}
+    }
 
     await page.route('**', route => {
         const url = route.request().url()
@@ -39,8 +45,11 @@ export async function getHLS(imdb) {
             hls = url
         }
 
-        route.continue();
+        route.continue()
     });
+
+    // Navigate to website
+    await page.goto(embed);
 
     const { width, height } = await page.evaluate(() => ({
         width: document.documentElement.clientWidth,
@@ -65,7 +74,7 @@ export async function getHLS(imdb) {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
+}
 
 const embed = {
     init: init,

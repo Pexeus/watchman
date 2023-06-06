@@ -36,7 +36,7 @@ export default {
       }
     );
 
-    search.query = "iron man"
+    search.query = "mr robot"
 
     return { search };
   },
