@@ -1,4 +1,5 @@
 <template>
+  <h2>{{ title }}</h2>
   <div class="feed">
     <div class="item" v-for="content of feed.content" :key="content.id" @click="openPlayer(content)">
       <img :src="`https://image.tmdb.org/t/p/w300/${content.poster_path}`" />
@@ -12,9 +13,11 @@ import { reactive, watch } from "vue";
 export default {
   props: {
     content: Object,
+    title: String
   },
   setup(props, context) {
     const feed = reactive({});
+    feed.isLoaded = false
 
     function openPlayer(content) {
       window.player.open(content)
@@ -24,6 +27,7 @@ export default {
       () => props.content,
       async (content) => {
         feed.content = content
+        feed.isLoaded = true
       }
     );
 
@@ -54,5 +58,9 @@ export default {
   height: 100%;
   background-size: cover;
   border-radius: 5px;
+}
+
+h2 {
+  float: left;
 }
 </style>
