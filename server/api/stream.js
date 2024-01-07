@@ -1,5 +1,6 @@
 import express from "express"
-import embed from "../scrapers/embed.js";
+import { getHLS } from "../scrapers/vidsrc.js";
+import { get } from "mongoose";
 
 const router = express.Router()
 
@@ -8,23 +9,24 @@ router.get("/source", async (req, res) => {
     const season = req.query.season
     const episode = req.query.episode
 
-    let id
+    let hls
 
-    console.log(episode);
+    console.log(imdb);
 
-    if (season != undefined && episode != undefined) {
-        id = `/tv?id=${imdb}&s=${season}&e=${episode}`
+    try {
+        if (season != null && episode != null) {
+            hls = await getHLS(`https://vidsrc.to/embed/tv/${imdb}/${season}/${episode}`)
+        }
+        else {
+            hls = await getHLS(`https://vidsrc.to/embed/movie/${imdb}`)
+        }
     }
-    else {
-        id = `/movie?id=${imdb}`
+    catch(err) {
+        console.log(err);
+        hls = false
     }
 
-    console.log(id);
-
-    console.log("getting HLS source for", id);
-
-    const hls = await embed.hls(id)
-    console.log(hls);
+    console.log("HLS Ready!");
 
     res.end(hls)
 })
